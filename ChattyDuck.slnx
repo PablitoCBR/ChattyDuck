@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Edge/">
+    <Project Path="src/ChattyDuck.Edge.Messanger/ChattyDuck.Edge.Messanger.csproj" />
+    <Project Path="src/ChattyDuck.Edge.Notifier/ChattyDuck.Edge.Notifier.csproj" />
+  </Folder>
+  <Folder Name="/SSO/" />
+  <Folder Name="/Tools/">
+    <Project Path="Tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />
+  </Folder>
+</Solution>
