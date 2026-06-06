@@ -5,10 +5,12 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Edge/">
-    <Project Path="src/ChattyDuck.Edge.Messanger/ChattyDuck.Edge.Messanger.csproj" />
-    <Project Path="src/ChattyDuck.Edge.Notifier/ChattyDuck.Edge.Notifier.csproj" />
+    <Project Path="src/edge/ChattyDuck.Edge.Messanger/ChattyDuck.Edge.Messanger.csproj" />
+    <Project Path="src/edge/ChattyDuck.Edge.Notifier/ChattyDuck.Edge.Notifier.csproj" />
   </Folder>
-  <Folder Name="/SSO/" />
+  <Folder Name="/SSO/">
+    <Project Path="src/IdentityServer/IdentityServer.csproj" />
+  </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />
   </Folder>
