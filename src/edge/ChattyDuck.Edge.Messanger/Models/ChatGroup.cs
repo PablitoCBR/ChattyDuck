@@ -1,4 +1,4 @@
-namespace ChattyDuck.Edge.Messanger;
+namespace ChattyDuck.Edge.Messanger.Models;
 
 public class ChatGroup
 {

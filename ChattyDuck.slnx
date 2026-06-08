@@ -8,8 +8,8 @@
     <Project Path="src/edge/ChattyDuck.Edge.Messanger/ChattyDuck.Edge.Messanger.csproj" />
     <Project Path="src/edge/ChattyDuck.Edge.Notifier/ChattyDuck.Edge.Notifier.csproj" />
   </Folder>
-  <Folder Name="/SSO/">
-    <Project Path="src/IdentityServer/IdentityServer.csproj" />
+  <Folder Name="/Core/">
+    <Project Path="src/core/ChattyDuck.Core.SSO/ChattyDuck.Core.SSO.csproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="Tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />

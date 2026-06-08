@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using ChattyDuck.Edge.Messanger.Models;
 
 namespace ChattyDuck.Edge.Messanger;
 

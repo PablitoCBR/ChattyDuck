@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
+using ChattyDuck.Edge.Messanger.Models;
 
 namespace ChattyDuck.Edge.Messanger;
 
