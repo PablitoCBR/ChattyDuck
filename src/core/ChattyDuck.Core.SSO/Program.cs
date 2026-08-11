@@ -3,6 +3,7 @@ using System.Text;
 using Duende.IdentityServer.Licensing;
 using ChattyDuck.Core.SSO;
 using Serilog;
+using ChattyDuck.Core.SSO.Configurations;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
@@ -29,6 +30,7 @@ try
         });
     }
 
+    Bootstrap.Setup(app);
     app.Run();
 }
 catch (Exception ex) when (ex is not HostAbortedException)
