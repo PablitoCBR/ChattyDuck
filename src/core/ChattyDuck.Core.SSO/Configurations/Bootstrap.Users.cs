@@ -7,6 +7,7 @@ namespace ChattyDuck.Core.SSO.Configurations;
 
 public static partial class Bootstrap
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging", Justification = "Startup class is not performance critical.")]
     public class Users
     {
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
