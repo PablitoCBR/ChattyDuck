@@ -1,5 +1,5 @@
 name: Pull Request CI
-run-name: Veryfing changes applied to backend with "${{ github.event.pull_request.name }}" PR
+run-name: Veryfing changes applied to backend with "${{ github.event.pull_request.title }}" PR
 
 on:
   pull_request:
@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
-        cache: true
+        # cache: true # not enabled because of unconfigured package.lock.json files
 
     - name: Restore dependencies
       run: dotnet restore
