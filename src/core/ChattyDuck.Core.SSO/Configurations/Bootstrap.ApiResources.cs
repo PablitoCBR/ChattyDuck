@@ -1,4 +1,3 @@
-using ChattyDuck.Core.SSO.Data;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Entities;
 
@@ -6,7 +5,8 @@ namespace ChattyDuck.Core.SSO.Configurations;
 
 public static partial class Bootstrap
 {
-    public static class ApiResources
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1873:Avoid potentially expensive logging", Justification = "Startup class is not performance critical.")]
+    public class ApiResources
     {
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
         {
@@ -21,57 +21,115 @@ public static partial class Bootstrap
                     continue;
                 }
 
-                var existingResource = context.ApiResources.SingleOrDefault(resource => resource.Name == resourceConfiguration.Name);
+                var unmatchedScopes = resourceConfiguration.Scopes
+                    .Where(scope => !string.IsNullOrWhiteSpace(scope))
+                    .Where(scope => !context.ApiScopes.Any(apiScope => apiScope.Name == scope))
+                    .ToList();
 
-                if (existingResource != null)
+                if (unmatchedScopes.Count != 0)
                 {
-                    logger.LogInformation("API resource {Name} already exists.", resourceConfiguration.Name);
+                    logger.LogError("Skipping API resource {Name} because the following scopes do not exist: {Scopes}.", resourceConfiguration.Name, string.Join(", ", unmatchedScopes));
                     continue;
                 }
 
-                logger.LogInformation("Creating API resource {Name}.", resourceConfiguration.Name);
+                var existingResource = context.ApiResources.SingleOrDefault(resource => resource.Name == resourceConfiguration.Name);
 
-                var resource = new Duende.IdentityServer.EntityFramework.Entities.ApiResource
+                if (existingResource is null)
                 {
-                    Enabled = resourceConfiguration.Enabled,
-                    Name = resourceConfiguration.Name,
-                    DisplayName = resourceConfiguration.DisplayName,
-                    Description = resourceConfiguration.Description,
-                };
+                    logger.LogInformation("Creating API resource {Name}.", resourceConfiguration.Name);
 
-                context.ApiResources.Add(resource);
-                context.SaveChanges();
-
-                var claims = resourceConfiguration.UserClaims
-                    .Where(claim => !string.IsNullOrWhiteSpace(claim))
-                    .Select(claim => new ApiResourceClaim
+                    var resource = new ApiResource
                     {
-                        ApiResourceId = resource.Id,
-                        Type = claim!
-                    })
-                    .ToArray();
+                        Enabled = resourceConfiguration.Enabled,
+                        Name = resourceConfiguration.Name,
+                        DisplayName = resourceConfiguration.DisplayName,
+                        Description = resourceConfiguration.Description,
+                        Scopes = [.. resourceConfiguration.Scopes
+                            .Where(scope => !string.IsNullOrWhiteSpace(scope))
+                            .Select(scope => new ApiResourceScope { Scope = scope! })],
+                        UserClaims = [.. resourceConfiguration.UserClaims
+                            .Where(claim => !string.IsNullOrWhiteSpace(claim))
+                            .Select(claim => new ApiResourceClaim { Type = claim! })]
+                    };
 
-                if (claims.Length > 0)
+                    context.ApiResources.Add(resource);
+                }
+                else
                 {
-                    context.ApiResourceClaims.AddRange(claims);
-                    context.SaveChanges();
+                    var updated = UpdateExistingResourceIfDifferent(context, existingResource, resourceConfiguration, logger);
+
+                    if (updated)
+                    {
+                        context.SaveChanges();
+                        logger.LogInformation("API resource {Name} updated.", resourceConfiguration.Name);
+                    }
+                    else
+                    {
+                        logger.LogInformation("API resource {Name} already exists.", resourceConfiguration.Name);
+                    }
                 }
 
-                var scopes = resourceConfiguration.Scopes
-                    .Where(scope => !string.IsNullOrWhiteSpace(scope))
-                    .Select(scope => new ApiResourceScope
-                    {
-                        ApiResourceId = resource.Id,
-                        Scope = scope!
-                    })
-                    .ToArray();
-
-                if (scopes.Length > 0)
-                {
-                    context.ApiResourceScopes.AddRange(scopes);
-                    context.SaveChanges();
-                }
             }
+
+            context.SaveChanges();
+        }
+
+        private static bool UpdateExistingResourceIfDifferent(ConfigurationDbContext context, ApiResource existingResource, ConfigurationApiResource resourceConfiguration, ILogger<ApiResources> logger)
+        {
+            var updated = false;
+
+            if (existingResource.Enabled != resourceConfiguration.Enabled)
+            {
+                logger.LogInformation("Updating enabled status for API resource {Name} from {OldEnabled} to {NewEnabled}.", existingResource.Name, existingResource.Enabled, resourceConfiguration.Enabled);
+                existingResource.Enabled = resourceConfiguration.Enabled;
+                updated = true;
+            }
+
+            if (existingResource.DisplayName != resourceConfiguration.DisplayName)
+            {
+                logger.LogInformation("Updating display name for API resource {Name} from {OldDisplayName} to {NewDisplayName}.", existingResource.Name, existingResource.DisplayName, resourceConfiguration.DisplayName);
+                existingResource.DisplayName = resourceConfiguration.DisplayName;
+                updated = true;
+            }
+
+            if (existingResource.Description != resourceConfiguration.Description)
+            {
+                logger.LogInformation("Updating description for API resource {Name} from {OldDescription} to {NewDescription}.", existingResource.Name, existingResource.Description, resourceConfiguration.Description);
+                existingResource.Description = resourceConfiguration.Description;
+                updated = true;
+            }
+
+            var existingScopes = existingResource.Scopes.Select(s => s.Scope).ToHashSet();
+            var desiredScopes = resourceConfiguration.Scopes.Where(scope => !string.IsNullOrWhiteSpace(scope)).ToHashSet();
+
+            if (!existingScopes.SetEquals(desiredScopes))
+            {
+                var scopesToRemove = existingScopes.Except(desiredScopes).ToList();
+                var scopesToAdd = desiredScopes.Except(existingScopes).ToList();
+
+                logger.LogInformation("Updating scopes for API resource {Name}. Scopes to remove: {ScopesToRemove}, Scopes to add: {ScopesToAdd}.", existingResource.Name, string.Join(", ", scopesToRemove), string.Join(", ", scopesToAdd));
+                existingResource.Scopes.Clear();
+                existingResource.Scopes.AddRange(desiredScopes.Select(scope => new ApiResourceScope { Scope = scope }));
+                
+                updated = true;
+            }
+
+            var existingClaims = existingResource.UserClaims.Select(c => c.Type).ToHashSet();
+            var desiredClaims = resourceConfiguration.UserClaims.Where(claim => !string.IsNullOrWhiteSpace(claim)).ToHashSet();
+
+            if (!existingClaims.SetEquals(desiredClaims))
+            {
+                var claimsToRemove = existingClaims.Except(desiredClaims).ToList();
+                var claimsToAdd = desiredClaims.Except(existingClaims).ToList();
+
+                logger.LogInformation("Updating user claims for API resource {Name}. Claims to remove: {ClaimsToRemove}, Claims to add: {ClaimsToAdd}.", existingResource.Name, string.Join(", ", claimsToRemove), string.Join(", ", claimsToAdd));
+                existingResource.UserClaims.Clear();
+                existingResource.UserClaims.AddRange(desiredClaims.Select(claim => new ApiResourceClaim { Type = claim }));
+
+                updated = true;
+            }
+
+            return updated;
         }
     }
 }

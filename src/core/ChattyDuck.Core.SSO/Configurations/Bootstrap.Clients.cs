@@ -54,7 +54,6 @@ public static partial class Bootstrap
                     };
 
                     context.Clients.Add(client);
-                    context.SaveChanges();
                 }
                 else
                 {
@@ -70,6 +69,8 @@ public static partial class Bootstrap
                     }
                 }
             }
+
+            context.SaveChanges();
         }
 
         private static bool UpdateExistingClientIfDifferent(ConfigurationDbContext context, Client existingClient, ConfigurationClient clientConfiguration, ILogger<Clients> logger)
@@ -114,7 +115,7 @@ public static partial class Bootstrap
             }
 
             // Update RedirectUris
-            var desiredRedirectUris = clientConfiguration.RedirectUris.Where(uri => !string.IsNullOrWhiteSpace(uri)).ToHashSet(); 
+            var desiredRedirectUris = clientConfiguration.RedirectUris.Where(uri => !string.IsNullOrWhiteSpace(uri)).ToHashSet();
             var existingRedirectUris = existingClient.RedirectUris.Select(uri => uri.RedirectUri).ToHashSet();
 
             if (!desiredRedirectUris.SetEquals(existingRedirectUris))

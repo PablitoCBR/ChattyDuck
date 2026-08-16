@@ -45,7 +45,6 @@ public static partial class Bootstrap
                     };
 
                     context.ApiScopes.Add(scope);
-                    context.SaveChanges();
                 }
                 else
                 {
@@ -62,6 +61,8 @@ public static partial class Bootstrap
                     }
                 }
             }
+
+            context.SaveChanges();
         }
 
         private static bool UpdateExistingScopeIfDifferent(ConfigurationDbContext context, ApiScope existingScope, ConfigurationScope scopeConfiguration, ILogger<Scopes> logger)
@@ -111,6 +112,7 @@ public static partial class Bootstrap
 
             existingScope.UserClaims.Clear();
             existingScope.UserClaims.AddRange(desiredClaims.Select(claim => new ApiScopeClaim { Type = claim }));
+            
             return true;
         }
     }

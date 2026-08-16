@@ -45,7 +45,6 @@ public static partial class Bootstrap
                     };
 
                     context.IdentityResources.Add(resource);
-                    context.SaveChanges();
                 }
                 else
                 {
@@ -62,6 +61,8 @@ public static partial class Bootstrap
                     }
                 }
             }
+
+            context.SaveChanges();
         }
 
         private static bool UpdateExistingResourceIfDifferent(ConfigurationDbContext context, IdentityResource existingResource, ConfigurationIdentityResource resourceConfiguration, ILogger logger)

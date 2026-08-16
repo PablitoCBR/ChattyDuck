@@ -14,10 +14,10 @@ public partial class Bootstrap
         var configuration = app.Configuration.GetRequiredSection(Configuration.SectionName).Get<Configuration>()!;
 
         Users.Configure(scope.ServiceProvider, configuration);
-        IdentityResources.Configure(scope.ServiceProvider, configuration);
-        ApiResources.Configure(scope.ServiceProvider, configuration);
         Scopes.Configure(scope.ServiceProvider, configuration);
         Clients.Configure(scope.ServiceProvider, configuration);
+        ApiResources.Configure(scope.ServiceProvider, configuration);
+        IdentityResources.Configure(scope.ServiceProvider, configuration);
     }
 
     private static void RunDatabaseMigrations(IServiceProvider serviceProvider)
