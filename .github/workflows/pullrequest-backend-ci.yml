@@ -28,12 +28,6 @@ jobs:
         dotnet-version: 10.0.x
         # cache: true # not enabled because of unconfigured package.lock.json files
 
-    - name: testing
-      run: | 
-        ls -la
-        ls tools
-        ls tools/ChattyDuck.Tools.ConsoleClient
-
     - name: Restore dependencies
       run: dotnet restore
 
