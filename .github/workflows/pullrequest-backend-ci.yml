@@ -29,7 +29,7 @@ jobs:
         # cache: true # not enabled because of unconfigured package.lock.json files
 
     - name: testing
-      run: > 
+      run: | 
         ls -la
         ls tools
         ls tools/ChattyDuck.Tools.ConsoleClient
