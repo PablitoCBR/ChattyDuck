@@ -12,6 +12,6 @@
     <Project Path="src/core/ChattyDuck.Core.SSO/ChattyDuck.Core.SSO.csproj" />
   </Folder>
   <Folder Name="/Tools/">
-    <Project Path="Tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />
+    <Project Path="tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />
   </Folder>
 </Solution>
