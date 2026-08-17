@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
 using ChattyDuck.Edge.Messanger.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ChattyDuck.Edge.Messanger;
 
@@ -33,7 +32,9 @@ public class ChatHub : Hub
     public async Task CreateGroup(string groupName)
     {
         var userId = Context.UserIdentifier;
-        if (string.IsNullOrEmpty(userId)) return;
+        
+        if (string.IsNullOrEmpty(userId))
+            return;
 
         var group = await _chatService.CreateGroupAsync(groupName, userId);
         await Groups.AddToGroupAsync(Context.ConnectionId, group.Id);
@@ -43,10 +44,14 @@ public class ChatHub : Hub
     public async Task JoinGroup(string groupId)
     {
         var userId = Context.UserIdentifier;
-        if (string.IsNullOrEmpty(userId)) return;
+
+        if (string.IsNullOrEmpty(userId))
+            return;
 
         var group = await _chatService.GetGroupAsync(groupId);
-        if (group == null || !group.Members.Contains(userId)) return;
+
+        if (group == null || !group.Members.Contains(userId))
+            return;
 
         await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
         await Clients.User(userId).SendAsync("JoinedGroup", group);
@@ -55,10 +60,14 @@ public class ChatHub : Hub
     public async Task SendMessage(string groupId, string message)
     {
         var userId = Context.UserIdentifier;
-        if (string.IsNullOrEmpty(userId)) return;
+
+        if (string.IsNullOrEmpty(userId))
+            return;
 
         var group = await _chatService.GetGroupAsync(groupId);
-        if (group == null || !group.Members.Contains(userId)) return;
+
+        if (group == null || !group.Members.Contains(userId))
+            return;
 
         var msg = await _chatService.AddMessageAsync(groupId, userId, message);
         await Clients.Group(groupId).SendAsync("ReceiveMessage", userId, message);
@@ -67,10 +76,14 @@ public class ChatHub : Hub
     public async Task<List<Message>> GetGroupMessages(string groupId)
     {
         var userId = Context.UserIdentifier;
-        if (string.IsNullOrEmpty(userId)) return new List<Message>();
+
+        if (string.IsNullOrEmpty(userId))
+            return [];
 
         var group = await _chatService.GetGroupAsync(groupId);
-        if (group == null || !group.Members.Contains(userId)) return new List<Message>();
+
+        if (group == null || !group.Members.Contains(userId))
+            return [];
 
         return await _chatService.GetMessagesAsync(groupId);
     }
