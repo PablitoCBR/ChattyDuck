@@ -13,7 +13,7 @@ public static partial class Bootstrap
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<Scopes>>();
-            using var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
+            var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
 
             foreach (var scopeConfiguration in configuration.Scopes)
             {
@@ -105,13 +105,13 @@ public static partial class Bootstrap
                 return updated;
             }
 
-            var claimsToAdd = desiredClaims.Except(existingClaims).ToList();
+            var claimsToAdd = desiredClaims.Except(existingClaims).ToHashSet();
             var claimsToRemove = existingClaims.Except(desiredClaims).ToList();
 
-            logger.LogInformation("API scope {Name} claims to add: {ClaimsToAdd}, claims to remove: {ClaimsToRemove}.", existingScope.Name, string.Join(", ", claimsToAdd), string.Join(", ", claimsToRemove));
+            logger.LogInformation("API scope {Name} claims to add: [{ClaimsToAdd}], claims to remove: [{ClaimsToRemove}].", existingScope.Name, string.Join(", ", claimsToAdd), string.Join(", ", claimsToRemove));
 
-            existingScope.UserClaims.Clear();
-            existingScope.UserClaims.AddRange(desiredClaims.Select(claim => new ApiScopeClaim { Type = claim }));
+            existingScope.UserClaims.Where(claim => claimsToRemove.Contains(claim.Type)).ToList().ForEach(claim => existingScope.UserClaims.Remove(claim));
+            existingScope.UserClaims.AddRange(claimsToAdd.Select(claim => new ApiScopeClaim { Type = claim }));
             
             return true;
         }

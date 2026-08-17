@@ -120,12 +120,12 @@ public static partial class Bootstrap
             }
 
             var addedClaims = desiredClaims.Except(currentClaims).ToList();
-            var removedClaims = currentClaims.Except(desiredClaims).ToList();
+            var removedClaims = currentClaims.Except(desiredClaims).ToHashSet();
 
-            logger.LogInformation("Updating identity resource {Name}: Claims changed. Added: {AddedClaims}, Removed: {RemovedClaims}.", existingResource.Name, addedClaims, removedClaims);
+            logger.LogInformation("Updating identity resource {Name}: Claims changed. Added: {AddedClaims}, Removed: {RemovedClaims}.", existingResource.Name, string.Join(", ", addedClaims), string.Join(", ", removedClaims));
 
-            existingResource.UserClaims.Clear();
-            existingResource.UserClaims.AddRange(desiredClaims.Select(claim => new IdentityResourceClaim { Type = claim }));
+            existingResource.UserClaims.Where(c => removedClaims.Contains(c.Type)).ToList().ForEach(c => existingResource.UserClaims.Remove(c));
+            existingResource.UserClaims.AddRange(addedClaims.Select(claim => new IdentityResourceClaim { Type = claim }));
 
             return true;
         }

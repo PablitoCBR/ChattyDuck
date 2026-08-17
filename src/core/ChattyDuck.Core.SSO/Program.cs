@@ -9,8 +9,6 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
     .CreateBootstrapLogger();
 
-Log.Information("Starting up");
-
 try
 {
     var builder = WebApplication.CreateBuilder(args);

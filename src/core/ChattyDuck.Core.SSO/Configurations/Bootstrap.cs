@@ -22,7 +22,7 @@ public partial class Bootstrap
 
     private static void RunDatabaseMigrations(IServiceProvider serviceProvider)
     {
-        using var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+        var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
         context.Database.Migrate();
     }
 }

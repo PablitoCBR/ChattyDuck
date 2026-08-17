@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (web)",
+            "name": "core.SSO",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/ChattyDuck.Edge.Messanger/bin/Debug/net9.0/ChattyDuck.Edge.Messanger.dll",
+            "program": "${workspaceFolder}/src/core/ChattyDuck.Core.SSO/bin/Debug/net10.0/ChattyDuck.Core.SSO.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/ChattyDuck.Edge.Messanger",
+            "cwd": "${workspaceFolder}/src/core/ChattyDuck.Core.SSO",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)",

@@ -11,7 +11,7 @@ public static partial class Bootstrap
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<ApiResources>>();
-            using var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
+            var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
 
             foreach (var resourceConfiguration in configuration.ApiResources)
             {
@@ -104,12 +104,13 @@ public static partial class Bootstrap
 
             if (!existingScopes.SetEquals(desiredScopes))
             {
-                var scopesToRemove = existingScopes.Except(desiredScopes).ToList();
+                var scopesToRemove = existingScopes.Except(desiredScopes).ToHashSet();
                 var scopesToAdd = desiredScopes.Except(existingScopes).ToList();
 
                 logger.LogInformation("Updating scopes for API resource {Name}. Scopes to remove: {ScopesToRemove}, Scopes to add: {ScopesToAdd}.", existingResource.Name, string.Join(", ", scopesToRemove), string.Join(", ", scopesToAdd));
-                existingResource.Scopes.Clear();
-                existingResource.Scopes.AddRange(desiredScopes.Select(scope => new ApiResourceScope { Scope = scope }));
+
+                existingResource.Scopes.Where(s => scopesToRemove.Contains(s.Scope)).ToList().ForEach(s => existingResource.Scopes.Remove(s));
+                existingResource.Scopes.AddRange(scopesToAdd.Select(scope => new ApiResourceScope { Scope = scope }));
                 
                 updated = true;
             }
@@ -119,12 +120,12 @@ public static partial class Bootstrap
 
             if (!existingClaims.SetEquals(desiredClaims))
             {
-                var claimsToRemove = existingClaims.Except(desiredClaims).ToList();
+                var claimsToRemove = existingClaims.Except(desiredClaims).ToHashSet();
                 var claimsToAdd = desiredClaims.Except(existingClaims).ToList();
 
                 logger.LogInformation("Updating user claims for API resource {Name}. Claims to remove: {ClaimsToRemove}, Claims to add: {ClaimsToAdd}.", existingResource.Name, string.Join(", ", claimsToRemove), string.Join(", ", claimsToAdd));
-                existingResource.UserClaims.Clear();
-                existingResource.UserClaims.AddRange(desiredClaims.Select(claim => new ApiResourceClaim { Type = claim }));
+                existingResource.UserClaims.Where(c => claimsToRemove.Contains(c.Type)).ToList().ForEach(c => existingResource.UserClaims.Remove(c));
+                existingResource.UserClaims.AddRange(claimsToAdd.Select(claim => new ApiResourceClaim { Type = claim }));
 
                 updated = true;
             }

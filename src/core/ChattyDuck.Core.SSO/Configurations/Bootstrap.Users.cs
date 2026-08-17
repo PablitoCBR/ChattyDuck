@@ -35,7 +35,7 @@ public static partial class Bootstrap
                 };
 
                 ArgumentNullException.ThrowIfNull(admin.Password, nameof(admin.Password));
-                var userCreationResult = userManager.CreateAsync(newUser, admin.Password.ToString()!).GetAwaiter().GetResult();
+                var userCreationResult = userManager.CreateAsync(newUser, admin.Password).GetAwaiter().GetResult();
 
                 if (userCreationResult.Succeeded)
                 {

@@ -12,7 +12,7 @@ public static partial class Bootstrap
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<Clients>>();
-            using var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
+            var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
 
             foreach (var clientConfiguration in configuration.Clients)
             {
@@ -104,12 +104,12 @@ public static partial class Bootstrap
 
             if (!desiredGrantTypes.SetEquals(existingGrantTypes))
             {
-                var grantTypesToRemove = existingGrantTypes.Except(desiredGrantTypes);
-                var grantTypesToAdd = desiredGrantTypes.Except(existingGrantTypes);
+                var grantTypesToRemove = existingGrantTypes.Except(desiredGrantTypes).ToHashSet();
+                var grantTypesToAdd = desiredGrantTypes.Except(existingGrantTypes).ToList();
                 logger.LogInformation("Updating allowed grant types for {ClientId}. Removing: {RemovedGrantTypes}, Adding: {AddedGrantTypes}.", existingClient.ClientId, string.Join(", ", grantTypesToRemove), string.Join(", ", grantTypesToAdd));
 
-                existingClient.AllowedGrantTypes.Clear();
-                existingClient.AllowedGrantTypes.AddRange(desiredGrantTypes.Select(gt => new ClientGrantType { GrantType = gt }));
+                existingClient.AllowedGrantTypes.Where(gt => grantTypesToRemove.Contains(gt.GrantType)).ToList().ForEach(gt => existingClient.AllowedGrantTypes.Remove(gt));
+                existingClient.AllowedGrantTypes.AddRange(grantTypesToAdd.Select(gt => new ClientGrantType { GrantType = gt }));
 
                 updated = true;
             }
@@ -120,12 +120,12 @@ public static partial class Bootstrap
 
             if (!desiredRedirectUris.SetEquals(existingRedirectUris))
             {
-                var redirectUrisToRemove = existingRedirectUris.Except(desiredRedirectUris);
-                var redirectUrisToAdd = desiredRedirectUris.Except(existingRedirectUris);
+                var redirectUrisToRemove = existingRedirectUris.Except(desiredRedirectUris).ToHashSet();
+                var redirectUrisToAdd = desiredRedirectUris.Except(existingRedirectUris).ToList();
                 logger.LogInformation("Updating redirect URIs for {ClientId}. Removing: {RemovedRedirectUris}, Adding: {AddedRedirectUris}.", existingClient.ClientId, string.Join(", ", redirectUrisToRemove), string.Join(", ", redirectUrisToAdd));
 
-                existingClient.RedirectUris.Clear();
-                existingClient.RedirectUris.AddRange(desiredRedirectUris.Select(uri => new ClientRedirectUri { RedirectUri = uri }));
+                existingClient.RedirectUris.Where(r => redirectUrisToRemove.Contains(r.RedirectUri)).ToList().ForEach(r => existingClient.RedirectUris.Remove(r));
+                existingClient.RedirectUris.AddRange(redirectUrisToAdd.Select(uri => new ClientRedirectUri { RedirectUri = uri }));
 
                 updated = true;
             }
@@ -136,12 +136,12 @@ public static partial class Bootstrap
 
             if (!desiredPostLogoutRedirectUris.SetEquals(existingPostLogoutRedirectUris))
             {
-                var postLogoutRedirectUrisToRemove = existingPostLogoutRedirectUris.Except(desiredPostLogoutRedirectUris);
-                var postLogoutRedirectUrisToAdd = desiredPostLogoutRedirectUris.Except(existingPostLogoutRedirectUris);
+                var postLogoutRedirectUrisToRemove = existingPostLogoutRedirectUris.Except(desiredPostLogoutRedirectUris).ToHashSet();
+                var postLogoutRedirectUrisToAdd = desiredPostLogoutRedirectUris.Except(existingPostLogoutRedirectUris).ToList();
                 logger.LogInformation("Updating post-logout redirect URIs for {ClientId}. Removing: {RemovedPostLogoutRedirectUris}, Adding: {AddedPostLogoutRedirectUris}.", existingClient.ClientId, string.Join(", ", postLogoutRedirectUrisToRemove), string.Join(", ", postLogoutRedirectUrisToAdd));
 
-                existingClient.PostLogoutRedirectUris.Clear();
-                existingClient.PostLogoutRedirectUris.AddRange(desiredPostLogoutRedirectUris.Select(uri => new ClientPostLogoutRedirectUri { PostLogoutRedirectUri = uri }));
+                existingClient.PostLogoutRedirectUris.Where(r => postLogoutRedirectUrisToRemove.Contains(r.PostLogoutRedirectUri)).ToList().ForEach(r => existingClient.PostLogoutRedirectUris.Remove(r));
+                existingClient.PostLogoutRedirectUris.AddRange(postLogoutRedirectUrisToAdd.Select(uri => new ClientPostLogoutRedirectUri { PostLogoutRedirectUri = uri }));
 
                 updated = true;
             }
@@ -152,12 +152,12 @@ public static partial class Bootstrap
 
             if (!desiredScopes.SetEquals(existingAllowedScopes))
             {
-                var scopesToRemove = existingAllowedScopes.Except(desiredScopes);
-                var scopesToAdd = desiredScopes.Except(existingAllowedScopes);
+                var scopesToRemove = existingAllowedScopes.Except(desiredScopes).ToHashSet();
+                var scopesToAdd = desiredScopes.Except(existingAllowedScopes).ToList();
                 logger.LogInformation("Updating allowed scopes for {ClientId}. Removing: {RemovedScopes}, Adding: {AddedScopes}.", existingClient.ClientId, string.Join(", ", scopesToRemove), string.Join(", ", scopesToAdd));
 
-                existingClient.AllowedScopes.Clear();
-                existingClient.AllowedScopes.AddRange(desiredScopes.Select(scope => new ClientScope { Scope = scope }));
+                existingClient.AllowedScopes.Where(s => scopesToRemove.Contains(s.Scope)).ToList().ForEach(s => existingClient.AllowedScopes.Remove(s));
+                existingClient.AllowedScopes.AddRange(scopesToAdd.Select(scope => new ClientScope { Scope = scope }));
 
                 updated = true;
             }

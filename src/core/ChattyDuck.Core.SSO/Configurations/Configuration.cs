@@ -79,7 +79,7 @@ public class ConfigurationUser
     public required string LastName { get; set; }
 
     [Required, MinLength(1), MaxLength(100)]
-    public required SecureString Password { get; set; }
+    public required string Password { get; set; }
 }
 
 public class ConfigurationIdentityResource
