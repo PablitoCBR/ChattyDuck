@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "duende-mcp": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "Duende.Documentation.Mcp",
+        "--yes",
+        "--",
+        "--database", "/data/duende_db.db"
+      ],
+      "env": {}
+    }
+  }
+}

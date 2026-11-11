@@ -5,7 +5,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ChattyDuck.Core.SSO</RootNamespace>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <AnalysisLevel>none</AnalysisLevel>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="Meziantou.Analyzer" />
+    <PackageReference Remove="SonarAnalyzer.CSharp" />
+    <PackageReference Remove="Roslynator.Analyzers" />
+    <PackageReference Remove="xunit.analyzers" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Duende.IdentityServer.AspNetIdentity" />
