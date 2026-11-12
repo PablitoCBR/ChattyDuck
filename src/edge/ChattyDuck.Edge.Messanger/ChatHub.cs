@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace ChattyDuck.Edge.Messanger;
 
-public class ChatHub : Hub
+internal class ChatHub : Hub
 {
     private readonly ChatService _chatService;
 

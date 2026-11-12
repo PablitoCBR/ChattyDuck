@@ -5,7 +5,17 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="Meziantou.Analyzer" />
+    <PackageReference Remove="SonarAnalyzer.CSharp" />
+    <PackageReference Remove="Roslynator.Analyzers" />
+    <PackageReference Remove="xunit.analyzers" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />

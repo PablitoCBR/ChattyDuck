@@ -3,7 +3,7 @@ using ChattyDuck.Edge.Messanger.Models;
 
 namespace ChattyDuck.Edge.Messanger;
 
-public class ChatService
+internal class ChatService
 {
     // This has to be replaced with a proper database keepint the information about the user groups to fetch upon connection
     private readonly ConcurrentDictionary<string, ChatGroup> _groups = new();
