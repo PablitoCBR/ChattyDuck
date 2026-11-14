@@ -12,7 +12,7 @@ public static partial class Bootstrap
         public static void Configure(IServiceProvider serviceProvider, Configuration configuration)
         {
             var logger = serviceProvider.GetRequiredService<ILogger<IdentityResources>>();
-            using var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
+            var context = serviceProvider.GetRequiredService<ConfigurationDbContext>();
 
             foreach (var resourceConfiguration in configuration.IdentityResources)
             {

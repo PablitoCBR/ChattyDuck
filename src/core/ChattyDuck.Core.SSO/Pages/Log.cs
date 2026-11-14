@@ -16,7 +16,7 @@ internal static class Log
 
     public static void InvalidBackchannelLoginId(this ILogger logger, string? id) => _invalidBackchannelLoginId(logger, id, null);
 
-    private static Action<ILogger, IEnumerable<string>, Exception?> _externalClaims = LoggerMessage.Define<IEnumerable<string>>(
+    private static readonly Action<ILogger, IEnumerable<string>, Exception?> _externalClaims = LoggerMessage.Define<IEnumerable<string>>(
         LogLevel.Debug,
         EventIds.ExternalClaims,
         "External claims: {Claims}");

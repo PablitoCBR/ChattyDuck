@@ -1,5 +1,6 @@
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ChattyDuck.Core.SSO.Configurations;
 
@@ -32,7 +33,10 @@ public static partial class Bootstrap
                     continue;
                 }
 
-                var existingResource = context.ApiResources.SingleOrDefault(resource => resource.Name == resourceConfiguration.Name);
+                var existingResource = context.ApiResources
+                    .Include(resource => resource.Scopes)
+                    .Include(resource => resource.UserClaims)
+                    .SingleOrDefault(resource => resource.Name == resourceConfiguration.Name);
 
                 if (existingResource is null)
                 {

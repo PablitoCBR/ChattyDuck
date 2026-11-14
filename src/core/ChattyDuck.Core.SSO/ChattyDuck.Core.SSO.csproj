@@ -5,14 +5,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ChattyDuck.Core.SSO</RootNamespace>
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
-    <EnableNETAnalyzers>false</EnableNETAnalyzers>
-    <AnalysisLevel>none</AnalysisLevel>
+    <!--
+      This project is largely based on the generated Duende IdentityServer template, so only a minimal
+      static analysis is applied here: the built-in .NET analyzers with the "Minimum" rule set
+      (overrides the solution-wide "All" mode from Directory.Build.props). Code style is not enforced
+      in build and third-party analyzers are excluded below.
+    -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>Minimum</AnalysisMode>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!-- Third-party analyzers enabled solution-wide in Directory.Build.props are excluded for this project. -->
   <ItemGroup>
     <PackageReference Remove="Meziantou.Analyzer" />
     <PackageReference Remove="SonarAnalyzer.CSharp" />

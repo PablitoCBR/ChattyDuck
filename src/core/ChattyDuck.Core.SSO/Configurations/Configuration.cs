@@ -33,7 +33,7 @@ public class ConfigurationClient
     [Required, MinLength(1), MaxLength(100)]
     public required string ClientName { get; set; }
 
-    public string Description { get; internal set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public required IEnumerable<string> AllowedGrantTypes { get; set; }
     public required IEnumerable<string> RedirectUris { get; set; }
     public required IEnumerable<string> PostLogoutRedirectUris { get; set; }
