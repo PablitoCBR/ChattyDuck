@@ -39,13 +39,27 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       # Same configuration key as on the host; only the value differs (the host is the compose service name).
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ChattyDuck_Identity;Username=postgres;Password=postgres"
+      # HTTPS with the local development certificate (see README.md in this folder for how to create it).
+      # Kestrel listens on 8080 (HTTP) and 8081 (HTTPS) inside the container.
+      ASPNETCORE_HTTP_PORTS: "8080"
+      ASPNETCORE_HTTPS_PORTS: "8081"
+      Kestrel__Certificates__Default__Path: /https/sso.pfx
+      Kestrel__Certificates__Default__Password: "${SSO_CERT_PASSWORD:?Set SSO_CERT_PASSWORD in deploy/local/.env, see deploy/local/README.md}"
+      # Port the browser sees for HTTPS; used by HTTPS redirection to build the redirect URL.
+      ASPNETCORE_HTTPS_PORT: "5001"
       # TODO: When Envoy is added (ADR 0003), route browser traffic through it and trust it here, e.g.
       #   ForwardedHeaders__Enabled: "true"
       #   ForwardedHeaders__KnownNetworks__0: "<subnet of the compose network>"
       # Prefer a fixed subnet for the compose network over trusting all of 172.16.0.0/12.
     ports:
-      # HTTP only for now. HTTPS with a local development certificate is added separately.
+      # Same public URL as `dotnet run` (https://localhost:5001), so the issuer and client configuration do not change.
+      # Stop the locally running SSO before starting this one: both use port 5001.
+      - "5001:8081"
+      # Plain HTTP stays reachable only to demonstrate the redirect to HTTPS.
       - "5000:8080"
+    volumes:
+      # The certificate is created on the host and never baked into the image.
+      - ./certs:/https:ro
     # TODO: Add a healthcheck once the SSO exposes a health endpoint (ADR 0002).
 
 volumes:

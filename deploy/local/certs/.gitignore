@@ -1,0 +1,3 @@
+# Local development certificates are created per machine and must never be committed.
+*
+!.gitignore
