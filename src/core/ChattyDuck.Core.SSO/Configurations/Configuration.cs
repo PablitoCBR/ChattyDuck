@@ -29,14 +29,12 @@ public class ConfigurationClient
     public required string ClientId { get; set; }
 
     public bool Enabled { get; set; } = true;
-    
+
     [Required, MinLength(1), MaxLength(100)]
     public required string ClientName { get; set; }
 
     public string Description { get; set; } = string.Empty;
-    // Collections default to empty instead of being `required`: the configuration binder does not enforce `required`,
-    // so a missing section would otherwise bind as null. Not every client has every list either; a client_credentials
-    // (machine-to-machine) client has no redirect URIs at all.
+
     public IEnumerable<string> AllowedGrantTypes { get; set; } = [];
     public IEnumerable<string> RedirectUris { get; set; } = [];
     public IEnumerable<string> PostLogoutRedirectUris { get; set; } = [];
