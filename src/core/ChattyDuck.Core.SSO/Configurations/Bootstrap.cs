@@ -1,4 +1,5 @@
 using ChattyDuck.Core.SSO.Data;
+using Duende.IdentityServer.EntityFramework.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChattyDuck.Core.SSO.Configurations;
@@ -8,7 +9,7 @@ public partial class Bootstrap
     public static void Setup(WebApplication app)
     {
         using var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        
+
         RunDatabaseMigrations(scope.ServiceProvider);
 
         var configuration = app.Configuration.GetRequiredSection(Configuration.SectionName).Get<Configuration>()!;
@@ -22,7 +23,7 @@ public partial class Bootstrap
 
     private static void RunDatabaseMigrations(IServiceProvider serviceProvider)
     {
-        var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
+        serviceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+        serviceProvider.GetRequiredService<ConfigurationDbContext>().Database.Migrate();
     }
 }
