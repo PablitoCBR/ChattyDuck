@@ -5,7 +5,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Edge/">
-    <Project Path="src/edge/ChattyDuck.Edge.Messanger/ChattyDuck.Edge.Messanger.csproj" />
+    <Project Path="src/edge/ChattyDuck.Edge.Messenger/ChattyDuck.Edge.Messenger.csproj" />
     <Project Path="src/edge/ChattyDuck.Edge.Notifier/ChattyDuck.Edge.Notifier.csproj" />
   </Folder>
   <Folder Name="/Core/">

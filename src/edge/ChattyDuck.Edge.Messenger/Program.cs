@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using ChattyDuck.Edge.Messanger;
+using ChattyDuck.Edge.Messenger;
 
 var builder = WebApplication.CreateBuilder(args);
 

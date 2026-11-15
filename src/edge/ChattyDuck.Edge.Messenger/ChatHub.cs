@@ -1,7 +1,7 @@
-using ChattyDuck.Edge.Messanger.Models;
+using ChattyDuck.Edge.Messenger.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace ChattyDuck.Edge.Messanger;
+namespace ChattyDuck.Edge.Messenger;
 
 internal class ChatHub : Hub
 {

@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using ChattyDuck.Edge.Messanger.Models;
+using ChattyDuck.Edge.Messenger.Models;
 
-namespace ChattyDuck.Edge.Messanger;
+namespace ChattyDuck.Edge.Messenger;
 
 internal class ChatService
 {

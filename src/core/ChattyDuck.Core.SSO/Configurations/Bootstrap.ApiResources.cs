@@ -115,7 +115,7 @@ public static partial class Bootstrap
 
                 existingResource.Scopes.Where(s => scopesToRemove.Contains(s.Scope)).ToList().ForEach(s => existingResource.Scopes.Remove(s));
                 existingResource.Scopes.AddRange(scopesToAdd.Select(scope => new ApiResourceScope { Scope = scope }));
-                
+
                 updated = true;
             }
 
