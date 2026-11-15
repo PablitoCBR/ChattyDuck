@@ -1,0 +1,18 @@
+# Keep the Docker build context small and free of local artefacts and secrets.
+**/bin/
+**/obj/
+**/node_modules/
+**/diagnostics/
+**/*.log
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/appsettings.*.local.json
+**/*.pfx
+**/*.pem
+**/*.key
+.git/
+.github/
+docs/
+deploy/
