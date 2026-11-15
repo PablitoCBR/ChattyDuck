@@ -84,6 +84,17 @@ internal static class HostingExtensions
                 // Automatic key management, when opertional store is implemented with EF the keys are persisted to the database and automatically rotated.
                 options.KeyManagement.Enabled = true; 
 
+                // Cache lifetimes for the configuration store cache (AddConfigurationStoreCache below).
+                // Trade-off: a longer lifetime means fewer database reads, but a change in the database (for example a
+                // disabled client or a removed redirect URI) takes up to this long to take effect, separately on every
+                // instance. 5 minutes keeps that window short while still removing almost all repeated reads.
+                // (Duende's default is 15 minutes.)
+                var configurationCacheLifetime = TimeSpan.FromMinutes(5);
+                options.Caching.ClientStoreExpiration = configurationCacheLifetime;
+                options.Caching.ResourceStoreExpiration = configurationCacheLifetime;
+                options.Caching.CorsExpiration = configurationCacheLifetime;
+                options.Caching.IdentityProviderCacheDuration = configurationCacheLifetime;
+
                 // Use a large chunk size for diagnostic data in development where it will be redirected to a local file.
                 if (builder.Environment.IsDevelopment())
                 {
@@ -96,6 +107,10 @@ internal static class HostingExtensions
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sql => sql.MigrationsAssembly(typeof(HostingExtensions).Assembly.FullName));
             })
+            // Without this, every authorize and token request reads the client, its scopes and resources, and the CORS
+            // origins from PostgreSQL again, although they almost never change. This wraps the EF stores in an
+            // in-memory cache (per instance) using the lifetimes set in options.Caching above.
+            .AddConfigurationStoreCache()
             .AddOperationalStore(options =>
             {
                 options.ConfigureDbContext = b => b.UseNpgsql(
