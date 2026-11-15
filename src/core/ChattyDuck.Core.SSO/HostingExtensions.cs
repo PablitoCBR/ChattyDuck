@@ -22,6 +22,13 @@ internal static class HostingExtensions
         // See https://docs.duendesoftware.com/identityserver/diagnostics/data
         builder.Services.AddSerilog(lc =>
         {
+            // Minimum levels and overrides come from the "Serilog" configuration section in every environment, so
+            // verbosity can be changed per environment (appsettings.{Environment}.json, environment variables)
+            // without a code change. Previously this was only applied inside the Development branch below, so other
+            // environments silently ignored the section.
+            lc.ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext();
+
             lc.WriteTo.Logger(consoleLogger =>
             {
                 consoleLogger.WriteTo.Console(
@@ -44,7 +51,7 @@ internal static class HostingExtensions
                             formatProvider: CultureInfo.InvariantCulture)
                         .Filter
                         .ByIncludingOnly(Matching.FromSource("Duende.IdentityServer.Diagnostics.Summary"));
-                }).Enrich.FromLogContext().ReadFrom.Configuration(builder.Configuration);
+                });
             }
         });
         return builder;
