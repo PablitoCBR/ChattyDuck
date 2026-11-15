@@ -42,7 +42,9 @@ How each folder maps to the architecture layers in the system overview diagram:
 | *(mobile client)* | Client | Mobile UI | Planned |
 | `src/edge/ChattyDuck.Edge.Messenger` | Edge | Messenger: real-time chat over WebSocket (SignalR `ChatHub`), publishes to and consumes from RabbitMQ | Started |
 | `src/edge/ChattyDuck.Edge.Notifier` | Edge | Notifier: pushes notifications to clients | Skeleton |
-| *(REST proxy / API gateway)* | Edge | Single HTTP entry point: proxies SSO, reads from cache | Planned |
+| *(edge proxy)* | Edge | Envoy: single public entry point; TLS, path routing, WebSocket, rate limits; no auth logic (ADR 0003) | Planned |
+| *(BFF)* | Edge | Node.js (TypeScript) BFF for the web client: OIDC client, cookie sessions, CSRF, proxies to Edge APIs with bearer tokens (ADR 0003) | Planned |
+| *(REST proxy / API gateway)* | Edge | HTTP API for all clients (bearer tokens only), reads from cache | Planned |
 | `src/core/ChattyDuck.Core.SSO` | Core | Identity provider: Duende IdentityServer + ASP.NET Identity on PostgreSQL (EF Core migrations under `Data/Migrations`) | Started |
 | *(Historical API)* | Core | Reads chat history from Storage, backed by a Redis cache | Planned |
 | *(Hot Storage)* | Core | Consumes messages from RabbitMQ and persists them to Storage | Planned |

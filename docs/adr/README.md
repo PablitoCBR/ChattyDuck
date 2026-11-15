@@ -15,3 +15,4 @@ This folder records the significant architectural decisions for ChattyDuck: what
 |---|---|---|
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted |
 | [0002](0002-environment-portable-deployment.md) | Environment-portable deployment | Accepted |
+| [0003](0003-web-client-authentication-via-bff.md) | Web client authentication via a BFF | Accepted |

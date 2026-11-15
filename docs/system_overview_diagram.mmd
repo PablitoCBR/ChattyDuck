@@ -9,6 +9,8 @@ graph TB
     end
 
     subgraph Edge["Edge"]
+        Envoy["Envoy (edge proxy)"]
+        BFF["BFF (web, Node.js)"]
         Messenger["Messenger"]
         Notifier["Notifier"]
         APIGateway["RESTPROXY API"]
@@ -28,11 +30,19 @@ graph TB
         BLOB[("BLOB Storage")]
     end
 
-    Client -->|HTTP| Edge
-    Client <-->|WebSocket| Edge
-    
+    %% ADR 0003: Envoy is the single public entry point (topology T3).
+    Client -->|HTTPS| Envoy
+    Client <-->|WebSocket| Envoy
+    Envoy -->|web: /bff, /api, /hubs| BFF
+    Envoy -->|mobile: /api| APIGateway
+    Envoy <-->|mobile: /hubs| Messenger
+    Envoy -->|/connect, /account| SSO
+    BFF -->|bearer| APIGateway
+    BFF <-->|WebSocket + bearer| Messenger
+    BFF -.->|OIDC| SSO
+    BFF -.->|sessions| Redis
+
     Messenger <-.-> RabbitMQ
-    APIGateway -->|SSO Proxy| SSO
     APIGateway -->|Read| Redis
     Redis -->|Cache| HistoricalAPI
     HistoricalAPI -->|Read| Storage
@@ -51,6 +61,6 @@ graph TB
     class Client clientPkg
     class Edge edgePkg
     class Core corePkg
-    class Messenger,Notifier,APIGateway,SSO,HistoricalAPI,HotStorage service
+    class Envoy,BFF,Messenger,Notifier,APIGateway,SSO,HistoricalAPI,HotStorage service
     class Redis,RabbitMQ infrastructure
     class PostgreSQL,MongoDB,BLOB database
