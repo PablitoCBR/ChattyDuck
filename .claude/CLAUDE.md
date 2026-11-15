@@ -92,6 +92,8 @@ Rules that keep this possible:
 
 ## Claude skills and agents
 
-- `.claude/skills/` and `.claude/agents/` hold the Duende skills (IdentityServer, OAuth/OIDC, ASP.NET Core auth, BFF, token management) and two specialist agents (`identity-server-specialist`, `oauth-oidc-specialist`), vendored from the upstream Duende repo. Provenance and the update procedure are in [`skills/DUENDE-SOURCE.md`](skills/DUENDE-SOURCE.md).
-- Use them for work on `ChattyDuck.Core.SSO` and for any service that authenticates against it.
-- Don't edit the vendored files. Project-specific guidance goes in this file or in a new skill folder of our own.
+Third-party skills and agents are not copied into the repo. They are shared as Claude Code plugins through [`settings.json`](settings.json), which registers each plugin marketplace (`extraKnownMarketplaces`) and turns on the plugins this repo uses (`enabledPlugins`). Claude Code offers to install them when you trust the folder, and they follow upstream updates without manual copying.
+
+- **Duende** ([DuendeSoftware/duende-skills](https://github.com/DuendeSoftware/duende-skills), plugin `duende-skills`): IdentityServer, OAuth/OIDC, ASP.NET Core auth, BFF and token-management skills, plus two specialist agents (`identity-server-specialist`, `oauth-oidc-specialist`). Use them for work on `ChattyDuck.Core.SSO` and for any service that authenticates against it.
+- **.NET** ([dotnet/skills](https://github.com/dotnet/skills), marketplace `dotnet-agent-skills`): the plugins relevant to this repo are enabled (`dotnet`, `dotnet-aspnetcore`, `dotnet-data`, `dotnet-diag`, `dotnet-msbuild`, `dotnet-nuget`, `dotnet-test`). Some include an LSP server or MCP server, which copied skill files can't carry. To enable another plugin from that marketplace (for example `dotnet-upgrade`), add it to `enabledPlugins`.
+- Project-specific guidance goes in this file or in a skill folder of our own under `.claude/skills/`. Don't fork upstream plugin content into the repo.
