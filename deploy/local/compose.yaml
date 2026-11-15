@@ -1,10 +1,14 @@
 name: chatty-duck-local
 
+# Run from this folder:  docker compose up --build
+# Build contexts are relative to this file, so ../.. is the repository root.
+
 services:
   postgres:
     image: postgres:15.3
     container_name: postgres
     environment:
+      # Local development defaults only. Never reuse these outside a developer machine.
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
@@ -12,6 +16,33 @@ services:
       - "5432:5432"
     volumes:
       - chatty-duck-local-postgress:/var/lib/postgresql/data
+    # Lets dependent services wait until PostgreSQL actually accepts connections, not just until the container started.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  sso:
+    build:
+      context: ../..
+      dockerfile: src/core/ChattyDuck.Core.SSO/Dockerfile
+    image: chattyduck/core-sso:local
+    container_name: sso
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # The seed configuration (clients, scopes, local admin) currently lives in appsettings.Development.json.
+      # TODO: Split the seed data out of the Development environment, so containers can run as Production
+      # with seed data supplied by configuration.
+      ASPNETCORE_ENVIRONMENT: Development
+      # Same configuration key as on the host; only the value differs (the host is the compose service name).
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ChattyDuck_Identity;Username=postgres;Password=postgres"
+    ports:
+      # HTTP only for now. HTTPS with a local development certificate is added separately.
+      - "5000:8080"
+    # TODO: Add a healthcheck once the SSO exposes a health endpoint (ADR 0002).
 
 volumes:
   chatty-duck-local-postgress:
