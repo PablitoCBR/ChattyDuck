@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security;
+using Duende.IdentityServer.Models;
 
 namespace ChattyDuck.Core.SSO.Configurations;
 
@@ -38,6 +38,72 @@ public class ConfigurationClient
     public required IEnumerable<string> RedirectUris { get; set; }
     public required IEnumerable<string> PostLogoutRedirectUris { get; set; }
     public required IEnumerable<string> AllowedScopes { get; set; }
+
+    /// <summary>
+    /// Origins (scheme + host + port, no path) allowed to call IdentityServer endpoints from browser JavaScript.
+    /// Only needed when a browser talks to IdentityServer directly; a BFF / server-side client does not need it.
+    /// </summary>
+    public IEnumerable<string> AllowedCorsOrigins { get; set; } = [];
+
+    /// <summary>
+    /// Confidential clients (a server that can keep a secret, e.g. a BFF) must authenticate at the token endpoint.
+    /// Public clients (native apps, browser-only SPAs) cannot keep a secret and set this to false.
+    /// The secure default mirrors Duende's default: a secret is required.
+    /// </summary>
+    public bool RequireClientSecret { get; set; } = true;
+
+    /// <summary>
+    /// Shared secrets of the client. Values are plain text in configuration and stored as SHA-256 hashes.
+    /// Never put real values in appsettings: supply them via user-secrets, environment variables or a secret store.
+    /// </summary>
+    public IEnumerable<ConfigurationClientSecret> ClientSecrets { get; set; } = [];
+
+    /// <summary>
+    /// Proof Key for Code Exchange. Recommended for every authorization_code client, confidential ones included (OAuth 2.1 / BCP).
+    /// </summary>
+    public bool RequirePkce { get; set; } = true;
+
+    /// <summary>
+    /// Allows requesting the offline_access scope, which issues refresh tokens.
+    /// </summary>
+    public bool AllowOfflineAccess { get; set; }
+
+    /// <summary>Access token lifetime in seconds (Duende default: 3600 = 1 hour).</summary>
+    [Range(1, int.MaxValue)]
+    public int AccessTokenLifetime { get; set; } = 3600;
+
+    /// <summary>Identity token lifetime in seconds (Duende default: 300 = 5 minutes).</summary>
+    [Range(1, int.MaxValue)]
+    public int IdentityTokenLifetime { get; set; } = 300;
+
+    /// <summary>Maximum refresh token lifetime in seconds (Duende default: 2592000 = 30 days).</summary>
+    [Range(1, int.MaxValue)]
+    public int AbsoluteRefreshTokenLifetime { get; set; } = 2592000;
+
+    /// <summary>Sliding refresh token lifetime in seconds, only used with <see cref="TokenExpiration.Sliding"/> (Duende default: 1296000 = 15 days).</summary>
+    [Range(0, int.MaxValue)]
+    public int SlidingRefreshTokenLifetime { get; set; } = 1296000;
+
+    /// <summary>
+    /// OneTimeOnly rotates the refresh token on every use, so a stolen token is detected when it is replayed. Recommended.
+    /// </summary>
+    public TokenUsage RefreshTokenUsage { get; set; } = TokenUsage.OneTimeOnly;
+
+    /// <summary>
+    /// Absolute: the refresh token expires at a fixed time. Sliding: every use extends it, capped by the absolute lifetime.
+    /// </summary>
+    public TokenExpiration RefreshTokenExpiration { get; set; } = TokenExpiration.Absolute;
+}
+
+public class ConfigurationClientSecret
+{
+    [Required, MinLength(16)]
+    public required string Value { get; set; }
+
+    public string? Description { get; set; }
+
+    /// <summary>Optional expiration (UTC). Lets a secret be rotated by adding a new one before the old one expires.</summary>
+    public DateTime? Expiration { get; set; }
 }
 
 public class ConfigurationScope
