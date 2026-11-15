@@ -39,6 +39,10 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       # Same configuration key as on the host; only the value differs (the host is the compose service name).
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ChattyDuck_Identity;Username=postgres;Password=postgres"
+      # TODO: When Envoy is added (ADR 0003), route browser traffic through it and trust it here, e.g.
+      #   ForwardedHeaders__Enabled: "true"
+      #   ForwardedHeaders__KnownNetworks__0: "<subnet of the compose network>"
+      # Prefer a fixed subnet for the compose network over trusting all of 172.16.0.0/12.
     ports:
       # HTTP only for now. HTTPS with a local development certificate is added separately.
       - "5000:8080"
