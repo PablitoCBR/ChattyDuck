@@ -11,6 +11,8 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
     <!-- IdentityServer -->
+    <!-- TODO: Plan the upgrade to Duende IdentityServer v8 (HybridCache, TimeProvider, new EF migrations) before
+         building much more on v7. -->
     <PackageVersion Include="Duende.IdentityServer.EntityFramework" Version="7.4.3" />
     <PackageVersion Include="Duende.IdentityServer.AspNetIdentity" version="7.4.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.1" />
@@ -18,6 +20,8 @@
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
+    <!-- TODO: Bump EF Core Tools. 10.0.1 pulls in System.Security.Cryptography.Pkcs 9.0.0 (known moderate and high
+         vulnerabilities) through EntityFrameworkCore.Design. Design-time only (PrivateAssets=all), not shipped. -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1" />
     <!-- TODO: Migrate to PostgreSQL -->
 

@@ -88,6 +88,11 @@ internal static class HostingExtensions
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
 
+                // TODO: Read the Duende license key from configuration (review point 14), e.g.
+                // options.LicenseKey = builder.Configuration["Duende:LicenseKey"]. Automatic key management is a
+                // paid-edition feature; check whether the free Community Edition applies to this project.
+                // Use a section other than "IdentityServer", which already holds the seed data.
+
                 // Automatic key management, when opertional store is implemented with EF the keys are persisted to the database and automatically rotated.
                 options.KeyManagement.Enabled = true; 
 
