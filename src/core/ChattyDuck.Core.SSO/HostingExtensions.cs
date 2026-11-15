@@ -1,8 +1,11 @@
 using System.Globalization;
+using System.Net;
 using Duende.IdentityServer;
+using ChattyDuck.Core.SSO.Configurations;
 using ChattyDuck.Core.SSO.Data;
 using ChattyDuck.Core.SSO.Models;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -103,11 +106,49 @@ internal static class HostingExtensions
             .AddLicenseSummary();
 
         builder.Services.AddAuthentication();
+
+        ConfigureForwardedHeaders(builder);
+
         return builder.Build();
+    }
+
+    private static ForwardedHeadersSettings GetForwardedHeadersSettings(IConfiguration configuration) =>
+        configuration.GetSection(ForwardedHeadersSettings.SectionName).Get<ForwardedHeadersSettings>() ?? new ForwardedHeadersSettings();
+
+    /// <summary>
+    /// Trust X-Forwarded-For / X-Forwarded-Proto only from configured proxies. See <see cref="ForwardedHeadersSettings"/> for the reasoning.
+    /// </summary>
+    private static void ConfigureForwardedHeaders(WebApplicationBuilder builder)
+    {
+        var settings = GetForwardedHeadersSettings(builder.Configuration);
+
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = settings.ForwardLimit;
+
+            // The defaults (loopback only) stay in place; configured proxies are added to them.
+            foreach (var proxy in settings.KnownProxies)
+            {
+                options.KnownProxies.Add(IPAddress.Parse(proxy));
+            }
+
+            foreach (var network in settings.KnownNetworks)
+            {
+                options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+            }
+        });
     }
 
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
+        // Must run first, so that everything after it (request logging, HTTPS redirection, IdentityServer's issuer
+        // and URL generation) sees the original scheme and client IP instead of the proxy's.
+        if (GetForwardedHeadersSettings(app.Configuration).Enabled)
+        {
+            app.UseForwardedHeaders();
+        }
+
         app.UseSerilogRequestLogging();
 
         if (app.Environment.IsDevelopment())
