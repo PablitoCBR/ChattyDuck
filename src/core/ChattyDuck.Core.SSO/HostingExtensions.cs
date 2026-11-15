@@ -2,6 +2,7 @@ using System.Globalization;
 using Duende.IdentityServer;
 using ChattyDuck.Core.SSO.Data;
 using ChattyDuck.Core.SSO.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -56,6 +57,18 @@ internal static class HostingExtensions
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
+        // ASP.NET Core Data Protection encrypts IdentityServer's automatically managed signing keys, the login cookie
+        // and anti-forgery tokens. By default its key ring lives on the local file system, which is lost whenever a
+        // container restarts and is not shared between instances. Persisting it in PostgreSQL keeps tokens and
+        // sessions valid across restarts and lets several instances read each other's keys.
+        // A fixed application name is required so that every instance (and every new deployment) uses the same key ring.
+        // See https://docs.duendesoftware.com/identityserver/deployment/#aspnet-core-data-protection
+        builder.Services.AddDataProtection()
+            .SetApplicationName("ChattyDuck.Core.SSO")
+            .PersistKeysToDbContext<ApplicationDbContext>();
+        // TODO: Encrypt the Data Protection keys at rest outside local development (ProtectKeysWithCertificate,
+        // or a cloud key vault behind an abstraction + ADR). Today they are stored unencrypted in the database.
 
         builder.Services
             .AddIdentityServer(options =>

@@ -1,15 +1,24 @@
 using ChattyDuck.Core.SSO.Models;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChattyDuck.Core.SSO.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+/// <summary>
+/// ASP.NET Identity tables plus the ASP.NET Core Data Protection key ring.
+/// </summary>
+/// <remarks>
+/// The Data Protection keys live in the same database as the users because they have the same lifetime and the same
+/// backup needs. Losing them makes every IdentityServer signing key (which is encrypted with Data Protection)
+/// and every login cookie unreadable.
+/// </remarks>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    protected override void OnModelCreating(ModelBuilder builder) => base.OnModelCreating(builder);// Customize the ASP.NET Identity model and override the defaults if needed.// For example, you can rename the ASP.NET Identity table names and more.// Add your customizations after calling base.OnModelCreating(builder);
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 }
