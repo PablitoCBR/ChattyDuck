@@ -50,7 +50,11 @@ services:
       # TODO: When Envoy is added (ADR 0003), route browser traffic through it and trust it here, e.g.
       #   ForwardedHeaders__Enabled: "true"
       #   ForwardedHeaders__KnownNetworks__0: "<subnet of the compose network>"
-      # Prefer a fixed subnet for the compose network over trusting all of 172.16.0.0/12.
+      # Prefer a fixed subnet for the compose network over trusting all of 172.16.0.0/12: traffic to a published port
+      # arrives from the Docker gateway, which is inside that range, so anyone reaching the port would be trusted.
+      # At the same time stop publishing the SSO ports, so the only way in is through Envoy, and configure Envoy's
+      # public listener as the edge (use_remote_address: true, xff_num_trusted_hops: 0) so it overwrites
+      # client-supplied X-Forwarded-* headers instead of passing them on.
     ports:
       # Same public URL as `dotnet run` (https://localhost:5001), so the issuer and client configuration do not change.
       # Stop the locally running SSO before starting this one: both use port 5001.
