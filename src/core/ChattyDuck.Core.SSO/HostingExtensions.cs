@@ -101,6 +101,19 @@ internal static class HostingExtensions
                 options.ConfigureDbContext = b => b.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     sql => sql.MigrationsAssembly(typeof(HostingExtensions).Assembly.FullName));
+
+                // The operational store keeps refresh tokens, authorization codes, consents, device codes and
+                // pushed authorization requests. IdentityServer ignores expired rows, but never deletes them on its
+                // own, so without cleanup the tables only grow. This background job deletes expired and consumed rows.
+                // With several instances every instance runs it; the deletes are idempotent, so that is safe, and
+                // Duende recommends enabling it on all instances (or on one dedicated instance for very large stores).
+                options.EnableTokenCleanup = true;
+                options.TokenCleanupInterval = 3600; // seconds; Duende's default, stated explicitly
+                // One-time refresh tokens are marked "consumed" when they are used. Delete those as well, but keep them
+                // for a day first: a consumed token being presented again is the signal of a stolen refresh token,
+                // and the rows are what lets you investigate (or later, revoke the user's other tokens).
+                options.RemoveConsumedTokens = true;
+                options.ConsumedTokenCleanupDelay = (int)TimeSpan.FromDays(1).TotalSeconds;
             })
             .AddAspNetIdentity<ApplicationUser>()
             .AddLicenseSummary();
