@@ -155,6 +155,21 @@ internal static class HostingExtensions
         {
             app.UseDeveloperExceptionPage();
         }
+        else
+        {
+            // Never show stack traces outside development: render the generic error page instead.
+            app.UseExceptionHandler("/Error");
+
+            // HSTS tells the browser to use HTTPS only for this host for a year, so a downgrade to HTTP is impossible
+            // even on the very first request of a later visit. It is skipped in Development on purpose: browsers cache
+            // it per host, and an HSTS entry for "localhost" would then force HTTPS on every other local app as well.
+            app.UseHsts();
+        }
+
+        // Redirect plain HTTP to HTTPS. Behind a TLS-terminating proxy the request is already HTTPS as far as the app
+        // is concerned (thanks to X-Forwarded-Proto above), so this does not cause a redirect loop.
+        // The public HTTPS port used in the redirect comes from configuration (https_port / ASPNETCORE_HTTPS_PORT).
+        app.UseHttpsRedirection();
 
         app.UseStaticFiles();
         app.UseRouting();
