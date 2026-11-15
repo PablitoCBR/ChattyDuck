@@ -87,3 +87,9 @@ Rules that keep this possible:
 - Explain the reasoning behind non-obvious design choices. This is a learning project and the "why" is part of the deliverable.
 - Keep changes scoped to one layer or component where possible. Changes that cross layer boundaries usually need an ADR.
 - Write architecture diagrams in Mermaid (`.mmd`) under `/docs`, so they stay diffable and reviewable as text.
+
+## Claude skills and agents
+
+- `.claude/skills/` and `.claude/agents/` hold the Duende skills (IdentityServer, OAuth/OIDC, ASP.NET Core auth, BFF, token management) and two specialist agents (`identity-server-specialist`, `oauth-oidc-specialist`), vendored from the upstream Duende repo. Provenance and the update procedure are in [`skills/DUENDE-SOURCE.md`](skills/DUENDE-SOURCE.md).
+- Use them for work on `ChattyDuck.Core.SSO` and for any service that authenticates against it.
+- Don't edit the vendored files. Project-specific guidance goes in this file or in a new skill folder of our own.
