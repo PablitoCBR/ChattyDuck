@@ -2,6 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-11-15
+- **Superseded in part by:** [0005](0005-envoy-as-edge-proxy-and-api-gateway.md) (Proposed). Once 0005 is accepted, part 2 (topology: a separate API gateway behind a plain Envoy proxy) and the BFF proxy paths `/api/*` and `/hubs/*` in part 1 no longer apply. Envoy becomes the API gateway, and the BFF exposes `/bff/api/*` and `/bff/hubs/*`. The BFF pattern (part 1) and the Node.js choice (part 3) stay.
 
 ## Context
 
