@@ -1,5 +1,6 @@
 {
   "appHost": {
-    "language": "csharp"
+    "language": "csharp",
+    "path": "deploy/aspire/ChattyDuck.AppHost/ChattyDuck.AppHost.csproj"
   }
 }
