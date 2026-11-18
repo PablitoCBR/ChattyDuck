@@ -124,7 +124,7 @@ Scores are relative judgements for *this* project (5 is best, so "Setup" 5 means
 Making a C# project the source of every target weakens "not .NET only" unless the services stay independent of it. So:
 
 - Each service documents the configuration keys it reads (for example `ConnectionStrings__Identity`, `Sso__Authority`, `RabbitMq__Host`). The list lives in `docs/configuration.md`. Every target supplies the **same keys** with different values, as ADR 0002 requires.
-- Services read **only our own keys**. They do not read Aspire's service-discovery variables (`services__sso__https__0`) and do not reference Aspire packages for discovery. In the AppHost our keys are set explicitly, for example `.WithEnvironment("Sso__Authority", ...)`. Connection strings follow the ASP.NET Core `ConnectionStrings__<name>` convention, which Aspire also uses, so naming the Aspire resource after the key is enough.
+- Services read **only our own keys**. They do not read Aspire's service-discovery variables (`services__sso__https__0`) and do not reference Aspire packages for discovery. In the AppHost our keys are set explicitly, for example `.WithEnvironment("Sso__Authority", ...)`. Connection strings follow the ASP.NET Core `ConnectionStrings__<name>` convention, which Aspire also uses. Resource names follow the naming convention (Decision 3) and so differ from the keys, so the key is always set explicitly: `.WithReference(db, connectionName: "Identity")` for a `ConnectionStrings` key, or `.WithEnvironment("<Key>", db)` for any other key.
 - Environment-specific plain files (Envoy) stay plain files that any tool can mount, not C# code.
 - The generated compose file and Helm chart are standard formats. Anyone can read, run or replace them without Aspire.
 - If Aspire is ever dropped, the generated output is the starting point for hand-written descriptors. Nothing inside a service changes.
@@ -140,7 +140,7 @@ In the inner loop, Envoy is a container (`AddContainer` with a pinned `envoyprox
 | `deploy/shared/envoy/envoy.yaml` | Bootstrap: admin interface, pointers to the two files below | No |
 | `deploy/shared/envoy/lds.yaml` | Listeners, routes, JWT and RBAC rules (ADR 0005) | **No.** This is the contract |
 | `deploy/shared/envoy/cds.aspire.yaml` | Clusters: `host.docker.internal:<fixed port>` | Aspire run mode only |
-| `deploy/shared/envoy/cds.containers.yaml` | Clusters: `sso:8080`, `messenger:8080`, … | Compose and Kubernetes |
+| `deploy/shared/envoy/cds.containers.yaml` | Clusters: `chattyduck-core-sso:8080`, `chattyduck-edge-messenger:8080`, … | Compose and Kubernetes |
 
 The AppHost mounts `cds.aspire.yaml` in run mode and `cds.containers.yaml` in publish mode (`builder.ExecutionContext.IsRunMode`). Routes and access rules are written once.
 
@@ -150,15 +150,20 @@ For this to work, two conventions apply:
 
   | Resource | Run mode (host) | Containers |
   |---|---|---|
-  | `envoy` public listener | `https://localhost:8443` | `8443` |
-  | `envoy` internal listener | `localhost:10000` | `10000`, not published |
-  | `sso` | `5101` | `8080` |
-  | `messenger` | `5102` | `8080` |
-  | `bff` | `5103` | `8080` |
-  | `web` (Vite dev server) | `5173` | served by the BFF |
-  | `historical-api`, `hot-storage`, … | `5104` and up | `8080` |
+  | `chattyduck-edge-envoy` public listener | `https://localhost:8443` | `8443` |
+  | `chattyduck-edge-envoy` internal listener | `localhost:10000` | `10000`, not published |
+  | `chattyduck-core-sso` | `5101` | `8080` |
+  | `chattyduck-edge-messenger` | `5102` | `8080` |
+  | `chattyduck-edge-bff` | `5103` | `8080` |
+  | `chattyduck-client-web` (Vite dev server) | `5173` | served by the BFF |
+  | `chattyduck-core-historical-api`, `chattyduck-core-hot-storage`, … | `5104` and up | `8080` |
 
 - **Same names everywhere.** The Aspire resource name equals the compose service name equals the Kubernetes Service name. Every service listens on `8080` inside its container. That is why one `cds.containers.yaml` serves both compose and Kubernetes.
+- **Names follow `chattyduck-<layer>-<service>`.** `<layer>` is the component's layer in `docs/system_overview_diagram.mmd` (`client`, `edge`, `core`, `storage`), and `<service>` is a short kebab-case name. This applies to infrastructure too: `chattyduck-storage-postgres`, `chattyduck-core-rabbitmq`, `chattyduck-core-redis`, `chattyduck-edge-envoy`. Child resources keep the prefix of their parent's layer, for example the database `chattyduck-storage-identity-db`.
+  - The name mirrors the .NET project name `ChattyDuck.<Layer>.<Component>`, with hyphens instead of dots and in lowercase. Dots are not possible: Aspire accepts only letters, digits and hyphens in resource names, and compose host names and Kubernetes Service names must be DNS labels (lowercase letters, digits and hyphens, at most 63 characters).
+  - The layer in every name makes the layering rule visible where it is enforced: a connection from a `chattyduck-edge-*` resource to a `chattyduck-storage-*` resource is wrong on sight.
+  - Logical names that are not host names (Envoy cluster and JWT provider names in ADR 0005, configuration keys) are not affected.
+  - The hand-written `deploy/local/compose.yaml` keeps its short names (`postgres`, `sso`) until the generated compose file replaces it.
 
 ### 4. Observability and health are standards, not Aspire features
 
@@ -212,8 +217,11 @@ The local design keeps the cloud step open:
 ### Follow-up work
 
 - [ ] Spike: a minimal AppHost with PostgreSQL, the SSO and Envoy, published to compose and Helm (Decision 1). Record what does not come out cleanly.
-- [ ] Create `deploy/aspire/ChattyDuck.AppHost` (and optionally `ChattyDuck.ServiceDefaults`), and add them to `ChattyDuck.slnx` under a `/Deploy/` solution folder. Use the `duende-skills:identityserver-aspire` skill for the SSO wiring.
-- [ ] Write `docs/configuration.md` with the configuration contract, and rename the SSO connection string key.
+- [x] Create `deploy/aspire/ChattyDuck.AppHost` (and optionally `ChattyDuck.ServiceDefaults`), and add them to `ChattyDuck.slnx` under a `/Deploy/` solution folder. Use the `duende-skills:identityserver-aspire` skill for the SSO wiring.
+  - Done for the AppHost, with PostgreSQL (pinned to `postgres:18.7`, Aspire-generated password) and the SSO (`AddDotnetProject` in run mode, `PublishAsDockerFile` with the existing Dockerfile in publish mode). `ChattyDuck.ServiceDefaults` is not created yet.
+  - Gap: the hand-written `compose.yaml` still uses PostgreSQL 15.3. Align it, or leave it until the generated compose file replaces it.
+- [x] Rename the SSO connection string key: it is now `ConnectionStrings__Identity` in the SSO, the AppHost and `deploy/local/compose.yaml`.
+- [ ] Write `docs/configuration.md` with the configuration contract.
 - [ ] Add `deploy/shared/envoy/` with the bootstrap, `lds.yaml` and the two cluster files.
 - [ ] Add health endpoints to the SSO and Messenger, and a Dockerfile for Messenger (ADR 0002 gaps).
 - [ ] Generate `deploy/generated/compose`, reach parity with `deploy/local/compose.yaml`, then delete the hand-written file.

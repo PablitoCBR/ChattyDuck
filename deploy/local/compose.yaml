@@ -38,7 +38,7 @@ services:
       # with seed data supplied by configuration.
       ASPNETCORE_ENVIRONMENT: Development
       # Same configuration key as on the host; only the value differs (the host is the compose service name).
-      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=ChattyDuck_Identity;Username=postgres;Password=postgres"
+      ConnectionStrings__Identity: "Host=postgres;Port=5432;Database=ChattyDuck_Identity;Username=postgres;Password=postgres"
       # HTTPS with the local development certificate (see README.md in this folder for how to create it).
       # Kestrel listens on 8080 (HTTP) and 8081 (HTTPS) inside the container.
       ASPNETCORE_HTTP_PORTS: "8080"

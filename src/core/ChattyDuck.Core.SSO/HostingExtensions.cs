@@ -16,6 +16,9 @@ namespace ChattyDuck.Core.SSO;
 
 internal static class HostingExtensions
 {
+    /// <summary>Name of the connection string (ConnectionStrings:Identity) for the SSO's database.</summary>
+    private const string IdentityConnectionStringName = "Identity";
+
     public static WebApplicationBuilder ConfigureLogging(this WebApplicationBuilder builder)
     {
         // Write most logs to the console but diagnostic data to a file.
@@ -61,8 +64,16 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
+        // One database holds ASP.NET Identity, the IdentityServer configuration and operational stores, and the Data
+        // Protection keys. Its connection string is read from the logical key ConnectionStrings:Identity, which every
+        // deployment target supplies (ADR 0004: services own their configuration keys). Failing here gives a clear
+        // startup error instead of an obscure Npgsql error on the first query.
+        var identityConnectionString = builder.Configuration.GetConnectionString(IdentityConnectionStringName)
+            ?? throw new InvalidOperationException(
+                $"Connection string '{IdentityConnectionStringName}' is not configured. Set ConnectionStrings__{IdentityConnectionStringName}.");
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(identityConnectionString));
 
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -116,7 +127,7 @@ internal static class HostingExtensions
             .AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = b => b.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    identityConnectionString,
                     sql => sql.MigrationsAssembly(typeof(HostingExtensions).Assembly.FullName));
             })
             // Without this, every authorize and token request reads the client, its scopes and resources, and the CORS
@@ -126,7 +137,7 @@ internal static class HostingExtensions
             .AddOperationalStore(options =>
             {
                 options.ConfigureDbContext = b => b.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    identityConnectionString,
                     sql => sql.MigrationsAssembly(typeof(HostingExtensions).Assembly.FullName));
 
                 // The operational store keeps refresh tokens, authorization codes, consents, device codes and
