@@ -14,4 +14,7 @@
   <Folder Name="/Tools/">
     <Project Path="tools/ChattyDuck.Tools.ConsoleClient/ChattyDuck.Tools.ConsoleClient.csproj" />
   </Folder>
+  <Folder Name="/Deploy/">
+    <Project Path="deploy/aspire/ChattyDuck.AppHost/ChattyDuck.AppHost.csproj" />
+  </Folder>
 </Solution>

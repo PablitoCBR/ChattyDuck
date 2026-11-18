@@ -24,6 +24,9 @@
          vulnerabilities) through EntityFrameworkCore.Design. Design-time only (PrivateAssets=all), not shipped. -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1" />
     <!-- TODO: Migrate to PostgreSQL -->
+    <!-- Aspire (AppHost only, ADR 0004) -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.0.0" />
 
     <!-- BUILD TOOLS -->
      <PackageVersion Include="Meziantou.Analyzer" Version="3.0.325"/>

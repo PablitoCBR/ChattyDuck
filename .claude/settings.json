@@ -12,6 +12,12 @@
         "source": "github",
         "repo": "DuendeSoftware/duende-skills"
       }
+    },
+    "aspire-skills": {
+      "source": {
+        "source": "github",
+        "repo": "microsoft/aspire-skills"
+      }
     }
   },
   "enabledPlugins": {
@@ -22,6 +28,7 @@
     "dotnet-diag@dotnet-agent-skills": true,
     "dotnet-msbuild@dotnet-agent-skills": true,
     "dotnet-nuget@dotnet-agent-skills": true,
-    "dotnet-test@dotnet-agent-skills": true
+    "dotnet-test@dotnet-agent-skills": true,
+    "aspire@aspire-skills": true
   }
 }
