@@ -8,10 +8,12 @@ ChattyDuck locally.
 | `chattyduck-storage-postgres` | PostgreSQL server, `postgres:18.7` container | Persistent container with the data volume `chatty-duck-aspire-postgres-18` | Container |
 | `chattyduck-storage-identity-db` | Database `ChattyDuck_Identity` on `chattyduck-storage-postgres` | Created by Aspire if missing; the SSO applies its EF Core migrations | — |
 | `chattyduck-core-sso` | `ChattyDuck.Core.SSO` | Host process (`dotnet run`), `https://localhost:5001` | Image built from `src/core/ChattyDuck.Core.SSO/Dockerfile` |
+| `chattyduck-client-web` | Web UI (`src/clients/web/chatty-duck-web`), Vite + React | `npm run dev` behind Aspire's proxy on `http://localhost:5173`; a `-installer` resource runs `npm install` first | Not served yet: the BFF will serve the built assets (ADR 0003) |
 
 ## Prerequisites
 
 - .NET 10 SDK and the Aspire CLI (`aspire --version`).
+- Node.js and npm, for the web client.
 - Docker Desktop running (PostgreSQL is a container).
 - The trusted .NET development certificate (`dotnet dev-certs https --trust`), because the SSO serves HTTPS.
 
@@ -63,4 +65,5 @@ Stop the compose stack (or a `dotnet run` SSO) first: they use port 5001 too.
 - No compose or Kubernetes publisher yet, so `aspire publish` produces nothing. `aspire do build-chattyduck-core-sso` builds the SSO
   image.
 - No health check for the SSO until it exposes `/health/live` and `/health/ready`.
-- No Envoy yet; the SSO is reached directly on `https://localhost:5001`.
+- No Envoy yet; the SSO is reached directly on `https://localhost:5001` and the web client on `http://localhost:5173`.
+- The web client has no production host until the BFF exists.

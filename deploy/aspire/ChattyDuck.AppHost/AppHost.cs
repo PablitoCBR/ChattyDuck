@@ -33,4 +33,14 @@ var sso = builder.AddDotnetProject("chattyduck-core-sso", $"{RepoRoot}/src/core/
 // TODO: .WithHttpHealthCheck("/health/ready") once the SSO has health endpoints (ADR 0002, 0004).
 // TODO: Move the SSO behind Envoy on fixed HTTP port 5101 (ADR 0003, 0005).
 
+// ---- Client -------------------------------------------------------------------------------------------------------
+
+// Run mode: `npm run dev` (Vite) on the fixed port 5173 from ADR 0004, so Envoy can route to it later.
+// AddViteApp already defines the "http" endpoint; only its port is pinned here.
+builder.AddViteApp("chattyduck-client-web", $"{RepoRoot}/src/clients/web/chatty-duck-web")
+    .WithEndpoint("http", endpoint => endpoint.Port = 5173);
+
+// TODO: Publish mode: the BFF serves the built assets (ADR 0003, 0004); until the BFF exists the web client has no
+// production host.
+
 builder.Build().Run();

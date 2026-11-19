@@ -219,6 +219,7 @@ The local design keeps the cloud step open:
 - [ ] Spike: a minimal AppHost with PostgreSQL, the SSO and Envoy, published to compose and Helm (Decision 1). Record what does not come out cleanly.
 - [x] Create `deploy/aspire/ChattyDuck.AppHost` (and optionally `ChattyDuck.ServiceDefaults`), and add them to `ChattyDuck.slnx` under a `/Deploy/` solution folder. Use the `duende-skills:identityserver-aspire` skill for the SSO wiring.
   - Done for the AppHost, with PostgreSQL (pinned to `postgres:18.7`, Aspire-generated password) and the SSO (`AddDotnetProject` in run mode, `PublishAsDockerFile` with the existing Dockerfile in publish mode). `ChattyDuck.ServiceDefaults` is not created yet.
+  - The web client runs as `chattyduck-client-web` (`AddViteApp`, port 5173) in run mode only. Gap: it has no publish-mode host until the BFF serves its built assets.
   - Gap: the hand-written `compose.yaml` still uses PostgreSQL 15.3. Align it, or leave it until the generated compose file replaces it.
 - [x] Rename the SSO connection string key: it is now `ConnectionStrings__Identity` in the SSO, the AppHost and `deploy/local/compose.yaml`.
 - [ ] Write `docs/configuration.md` with the configuration contract.
